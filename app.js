@@ -6,9 +6,9 @@ const Intern = require("./lib/Intern");
 const Engineer = require("./lib/Engineer");
 const Manager = require("./lib/Manager");
 
+
 //<--This is the array we're pushing team members to if user elects to add another team member. This data then gets rendered to the created html-->
 const teamMembers = [];
-const idArray = [];
 
 inquirer
     .prompt([{
@@ -37,9 +37,7 @@ inquirer
         const manager = new Manager(response.managerName, response.managerId, response.managerEmail, response.office)
             //<--We push a new employee into empty employee array-->
         teamMembers.push(manager);
-        idArray.push(response.managerId);
         console.log(teamMembers);
-
         //<--Run function to ask other questions-->
         createTeam();
     });
@@ -83,7 +81,6 @@ function createTeam() {
                             const engineer = new Engineer(response.engineerName, response.engineerId, response.engineerEmail, response.github);
                             //<--We push a new employee into empty employee array-->
                             teamMembers.push(engineer);
-                            idArray.push(response.engineerId);
                             createTeam();
                         });
 
@@ -115,7 +112,6 @@ function createTeam() {
                             const intern = new Intern(response.internName, response.internId, response.internEmail, response.school);
                             //<--We push a new employee into empty employee array-->
                             teamMembers.push(intern);
-                            idArray.push(response.internId);
                             createTeam();
                         })
                     break;
@@ -127,16 +123,21 @@ function createTeam() {
 
 function buildTeam() {
     console.log(teamMembers);
-}
-// 
+    try {
+        //<--reads template html file-->
+        let mainHTML = fs.readFileSync('index.html', 'utf8');
+        let compiledData = ''
 
-
-
-
-
-
-function fillHTML() {
-    console.log(userInfo);
-    htmlStr =
-        ``;
+        for (let i = 0; i < teamMembers.length; i++) {
+            console.log(i)
+                //<--Adds in html code for each team member to compiledData-->
+            compiledData += `${teamMembers[i].getHtml()}`
+        }
+        //<--Replaces all instances of {{{}}} with serialized data-->
+        mainHTML = mainHTML.replace('{{{placeholder}}}', compiledData)
+            //<--writes the main html file-->
+        fs.writeFileSync('TeamDev.html', mainHTML)
+    } catch (err) {
+        console.log(err);
+    }
 }
